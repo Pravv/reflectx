@@ -181,7 +181,33 @@ func (m *Mapper) TraversalsByName(t reflect.Type, names []string) [][]int {
 	}
 	return r
 }
+type FieldDescription struct {
+    Name            string
+    Table           uint32
+    AttributeNumber int16
+    DataType        uint32
+    DataTypeSize    int16
+    DataTypeName    string
+    Modifier        int32
+    FormatCode      int16
+}
 
+func (m *Mapper) TraversalsByNameX(t reflect.Type, names []FieldDescription) [][]int {
+    t = Deref(t)
+    mustBe(t, reflect.Struct)
+    tm := m.TypeMap(t)
+
+    r := make([][]int, 0, len(names))
+    for _, name := range names {
+        fi, ok := tm.Names[name]
+        if !ok {
+            r = append(r, []int{})
+        } else {
+            r = append(r, fi.Index)
+        }
+    }
+    return r
+}
 // FieldByIndexes returns a value for the field given by the struct traversal
 // for the given value.
 func FieldByIndexes(v reflect.Value, indexes []int) reflect.Value {
